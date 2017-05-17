@@ -10,6 +10,7 @@ cimport numpy as np
 import numpy as np
 
 from pyne cimport cpp_dagmc_bridge
+from pyne cimport cpp_discretize
 from pyne.mesh import Mesh
 from numpy.linalg import norm
 from pyne.material import Material, MaterialLibrary
@@ -159,6 +160,7 @@ def _ray_history():
 def dag_ray_fire(vol, np.ndarray[np.float64_t, ndim=1] ray_start, 
                  np.ndarray[np.float64_t, ndim=1] ray_dir,
                  RayHistory history=None, double distance_limit=0.0):
+
     cdef cpp_dagmc_bridge.EntityHandle next_surf 
     cdef cpp_dagmc_bridge.ErrorCode crtn
     cdef double next_surf_dist = 0.0 
@@ -769,12 +771,19 @@ def discretize_geom(mesh, **kwargs):
             The relative error associated with the volume fraction.
         This array is returned in sorted order with respect to idx and cell, with
         cell changing fastest.
-    """
+    """ 
     if mesh.structured:
-       num_rays = kwargs['num_rays'] if 'num_rays' in kwargs else 10
-       grid = kwargs['grid'] if 'grid' in kwargs else False
-       results = ray_discretize(mesh, num_rays, grid)
+        num_rays = kwargs['num_rays'] if 'num_rays' in kwargs else 10
+        grid = kwargs['grid'] if 'grid' in kwargs else False
+        results = ray_discretize(mesh, num_rays, grid)
+        foobar = []
+        for di in 'xyz':
+            foobar.append(mesh.structured_get_divisions(di))
+        results11 = cpp_discretize.discretize_geom(foobar, num_rays, grid)
     else:
+    # XXX
+    # Probably keep this part as it is. You're not interested in unstructured
+    # mesh anyways!
        if kwargs:
            raise ValueError("No valid key word arguments for unstructed mesh.")
        cells = cells_at_ve_centers(mesh)
