@@ -779,7 +779,7 @@ def discretize_geom(mesh, **kwargs):
         foobar = []
         for di in 'xyz':
             foobar.append(mesh.structured_get_divisions(di))
-        results11 = cpp_discretize.discretize_geom(foobar, num_rays, grid)
+        results11 = cpp_discretize.discretize_geom(foobar, vol_handle_to_id, num_rays, grid)
     else:
     # XXX
     # Probably keep this part as it is. You're not interested in unstructured
@@ -877,7 +877,7 @@ def ray_discretize(mesh, num_rays=10, grid=False):
     dis = [0, 1, 2]
     #  Iterate over all directions indicies
     for di in dis:
-        #  For each direction, the remaining two directions define the sampling 
+        #  For each direction, the remaining two directions define the sampling
         #  surface. These two directions are the values in s_dis (surface
         #  direction indices)
         s_dis = [0, 1, 2]
@@ -904,6 +904,8 @@ def ray_discretize(mesh, num_rays=10, grid=False):
                 else:
                     mesh_row._grid_start()
 
+                #XXX
+                #FIGURE THIS BIT OUT
                 #  Create a list of mesh idx corresponding to this mesh row.
                 if di == 0:
                     ves = mesh.structured_iterate_hex('x', y=a, z=b)
@@ -918,6 +920,7 @@ def ray_discretize(mesh, num_rays=10, grid=False):
                     idx.append(idx_tag[ve])
 
                 #  Fire rays.
+                #XXX Til about here so.
                 row_sums = mesh_row._evaluate_row()
 
                 #  Add row results to the full mesh sum matrix.

@@ -87,7 +87,6 @@ if (MOAB_FOUND)
     set(PYNE_SRCS "${PYNE_SRCS}"
         "dagmc_bridge.cpp"
         "discretize.cpp"
-        "MeshRow.cpp"
         "measure.cpp"
         "source_sampling.cpp"
         )
