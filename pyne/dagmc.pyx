@@ -776,10 +776,10 @@ def discretize_geom(mesh, **kwargs):
         num_rays = kwargs['num_rays'] if 'num_rays' in kwargs else 10
         grid = kwargs['grid'] if 'grid' in kwargs else False
         results = ray_discretize(mesh, num_rays, grid)
-        foobar = []
+        new_mesh = []
         for di in 'xyz':
-            foobar.append(mesh.structured_get_divisions(di))
-        results11 = cpp_discretize.discretize_geom(foobar, vol_handle_to_id, num_rays, grid)
+            new_mesh.append(mesh.structured_get_divisions(di))
+        results11 = cpp_discretize.discretize_geom(new_mesh, vol_handle_to_id, num_rays, grid)
     else:
     # XXX
     # Probably keep this part as it is. You're not interested in unstructured
