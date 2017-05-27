@@ -12,13 +12,7 @@ cdef extern from "moab/Types.hpp" namespace "moab":
 
 cdef extern from "discretize.h" namespace "pyne":
 
-    ctypedef struct disc_result:
-        int idx
-        int cell
-        double vol_frac
-        double rel_error
-
-    vector[disc_result] discretize_geom(vector[vector[double]],
+    vector[vector[double]] discretize_geom(vector[vector[double]],
                                         map[EntityHandle, int],
                                         int,
                                         bool) except +
