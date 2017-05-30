@@ -772,34 +772,35 @@ def discretize_geom(mesh, **kwargs):
         This array is returned in sorted order with respect to idx and cell, with
         cell changing fastest.
     """
+    # These must be defined outside of if blocks. They are used for the
+    # cpp_discretize results.
     cdef int num_results
     cdef int args = 4
     if mesh.structured:
         num_rays = kwargs['num_rays'] if 'num_rays' in kwargs else 10
         grid = kwargs['grid'] if 'grid' in kwargs else False
-        results = ray_discretize(mesh, num_rays, grid)
+        # Ensure the number of rays is a perfect square if grid is true.
+        if grid and (int(np.sqrt(num_rays))**2 != num_rays):
+            raise ValueError("For rays fired in a grid, "
+                             "num_rays must be a perfect square.")
         new_mesh = []
         for di in 'xyz':
             new_mesh.append(mesh.structured_get_divisions(di))
-        results11 = cpp_discretize.discretize_geom(new_mesh, vol_handle_to_id, num_rays, grid)
-        results1 = []
-        num_results = results11.size()
-        results3 = np.zeros(num_results, dtype=[(b'idx', np.int64),
-                                             (b'cell', np.int64),
-                                             (b'vol_frac', np.float64),
-                                             (b'rel_error', np.float64)])
+        cpp_results = cpp_discretize.discretize_geom(new_mesh,
+                                                     vol_handle_to_id,
+                                                     num_rays, grid)
+        num_results = cpp_results.size()
+        results = np.zeros(num_results, dtype=[(b'idx', np.int64),
+                                               (b'cell', np.int64),
+                                               (b'vol_frac', np.float64),
+                                               (b'rel_error', np.float64)])
         for i in range(num_results):
-            for j in range(args):
-                results1.append(results11[i][j])
-            results3[i] = (results1[0], results1[1], results1[2], results1[3])
-            results1 = []
+            results[i] = (cpp_results[i][0], cpp_results[i][1],
+                          cpp_results[i][2], cpp_results[i][3])
 
         results.sort()
 
     else:
-    # XXX
-    # Probably keep this part as it is. You're not interested in unstructured
-    # mesh anyways!
        if kwargs:
            raise ValueError("No valid key word arguments for unstructed mesh.")
        cells = cells_at_ve_centers(mesh)
